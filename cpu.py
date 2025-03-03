@@ -23,8 +23,7 @@ class Cpu():
     
     def __int_to_register(self, value: int, register: Register):
         """
-        Convert an integer to a register (bytearray) following the little-endian
-        format.
+        Convert an integer to a register (bytearray) following the little-endian format.
         """
         for i in range(len(register.value)):
             register.set(i, (value >> (8 * i)) & 0xFF)
@@ -40,11 +39,14 @@ class Cpu():
             value = self.__register_to_int(value)
         self.__int_to_register(value, to_register)
 
-    def asm_LDR(self, address: int) -> int:
-        return self.memory.get(address)
+    def asm_LDR(self, to_register: Register, address: Union[str, Register]):
+        pass
 
-    def asm_STR(self, address: int, data: int):
-        self.memory.set(address, data)
+    def asm_STR(self, from_register: Register, address: Union[str, Register]):
+        if isinstance(address, str):
+            self.memory.set_with_label(address, self.__register_to_int(from_register))
+        else:
+            self.memory.set_with_address(address, self.__register_to_int(from_register))
 
     def asm_OUT(self, register: Register):
         self.R2 = register
