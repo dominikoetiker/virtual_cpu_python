@@ -4,13 +4,10 @@ def main():
     my_cpu: Cpu = Cpu()
     my_cpu.asm_NOP()
 
-    address: int = 0x3ff
-    data: int = 0xff
-    my_cpu.asm_STR(address, data)
-    data: int = my_cpu.asm_LDR(address)
-
-    print(f"Data at address {address}: {data}")
-    print(my_cpu.memory.memory)
+    my_cpu.asm_MOV(my_cpu.R0, 0xaabb)
+    my_cpu.asm_MOV(my_cpu.R1, 0x0001)
+    my_cpu.asm_ADD(my_cpu.R0, my_cpu.R0, my_cpu.R1)
+    my_cpu.asm_OUT(my_cpu.R0)
     
 
 if __name__ == "__main__":
