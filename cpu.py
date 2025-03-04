@@ -15,6 +15,7 @@ class Cpu:
         R4 (Register): MBR: Memory Byte Register. Data value (first byte) the Program Counter is pointing to.
         R5 (Register): PC: Program Counter. Points to the next instruction to be executed
         Z (bool): Zero flag. Set if the result of an operation is zero.
+        instruction_set (dict[int, function]): Set of instructions with their respective methods.
     """
 
     def __init__(
@@ -23,7 +24,6 @@ class Cpu:
         r0_size_byte: int = 2,
         r1_size_byte: int = 2,
         r2_size_byte: int = 2,
-        r3_size_byte: int = 2,
         r4_size_byte: int = 2,
         r5_size_byte: int = 2,
     ):
@@ -34,7 +34,6 @@ class Cpu:
             r0_size_byte (int, optional): Size of the R0 register in bytes. Defaults to 2.
             r1_size_byte (int, optional): Size of the R1 register in bytes. Defaults to 2.
             r2_size_byte (int, optional): Size of the R2 register in bytes. Defaults to 2.
-            r3_size_byte (int, optional): Size of the R3 register in bytes. Defaults to 2.
             r4_size_byte (int, optional): Size of the R4 register in bytes. Defaults to 2.
             r5_size_byte (int, optional): Size of the R5 register in bytes. Defaults to 2.
         """
@@ -42,10 +41,29 @@ class Cpu:
         self.R0: Register = Register(r0_size_byte)
         self.R1: Register = Register(r1_size_byte)
         self.R2: Register = Register(r2_size_byte)
-        self.R3: Register = Register(r3_size_byte)
+        self.R3: Register = Register(1)
         self.R4: Register = Register(r4_size_byte)
         self.R5: Register = Register(r5_size_byte)
         self.Z: bool = False  # Zero flag
+        self.instruction_set: dict[int, function] = {
+            0x00: self.asm_NOP,
+            0x01: self.asm_INP,
+            0x02: self.asm_OUT,
+            0x03: self.asm_MUL,
+            0x04: self.asm_DIV,
+            0x05: self.asm_ADD,
+            0x06: self.asm_SUB,
+            0x07: self.asm_MOV,
+            0x08: self.asm_LDR,
+            0x09: self.asm_STR,
+            0x0A: self.asm_CMP,
+            0x0B: self.asm_BEQ,
+            0x0C: self.asm_BNE,
+            0x0D: self.asm_B,
+            0x0E: self.asm_BL,
+            0x0F: self.asm_BX,
+            0x10: self.asm_HLT,
+        }
 
     def __register_to_int(self, register: Register) -> int:
         """Convert a register (bytearray) to an integer following the little-endian format.
@@ -78,6 +96,26 @@ class Cpu:
             value (int): Value to check if it is zero.
         """
         self.Z = value == 0
+
+    def __load_to_mbr(self):
+        """Load the data from the memory to the Memory Byte Register."""
+        data: int = self.memory.get_with_address(
+            self.__register_to_int(self.R5), len(self.R4.value)
+        )
+        self.__int_to_register(data, self.R4)
+
+    def __increment_pc(self):
+        """Increment the Program Counter."""
+        self.__int_to_register(self.__register_to_int(self.R5) + 1, self.R5)
+
+    def __decode_instruction(self) -> function:
+        """Decode the instruction from the Memory Byte Register.
+
+        Returns:
+            function: Function to execute the instruction.
+        """
+        instruction_code: int = self.__register_to_int(self.R4)
+        return self.instruction_set[instruction_code]
 
     def asm_ADD(
         self, to_register: Register, summand1: Register, summand2: Union[Register, int]
