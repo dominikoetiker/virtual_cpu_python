@@ -119,7 +119,7 @@ Where:
 
 - **Opcode**: 1 byte
 - **Last Operand Type**: 1 byte
-- **Operands**: 0-n bytes (depending on the instruction)
+- **Operands**: 0-n bytes (depending on the instruction), using little-endian byte order
 
 ## Usage
 
