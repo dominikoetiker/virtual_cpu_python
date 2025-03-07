@@ -3,14 +3,10 @@ from CentralProcessingUnit import CentralProcessingUnit
 
 def main():
     my_cpu: CentralProcessingUnit = CentralProcessingUnit()
-    # program to load 1 into register 0 and 2 into register 1,
-    # then add them together into register 0
-    # and then get an input into register 1,
-    # then add the values of register 0 and 1 into register 0
-    # and output the value of register 0
-    # Instruction format: [opcode (1 byte), [last_operand_type (1 byte), operand_1 ... operand_n (operand_type_set[last_operand_type][1] bytes)]]
-    program = bytearray(
+
+    example_program_1 = bytearray(
         [
+            # Example: Adding two numbers, getting a new number from the user, adding it to the sum and outputting the result
             0x02,  # PC: 0x0000: MOV
             0x01,  # PC: 0x0001: last_operand_type (value)
             0x00,  # PC: 0x0002: operand_1 (register 0)
@@ -41,7 +37,7 @@ def main():
         ]
     )
 
-    program2 = bytearray(
+    example_program_2 = bytearray(
         [
             # Example: Adding two numbers and outputting the result
             0x02, 0x01, 0x00, 0x05, 0x00,  # MOV R0, 5
@@ -52,7 +48,7 @@ def main():
         ]
     )
 
-    my_cpu.load_program(program2)
+    my_cpu.load_program(example_program_2)
     my_cpu.run()
 
 
