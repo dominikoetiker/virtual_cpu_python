@@ -17,8 +17,7 @@ class Ram:
             self.memory[address + i] = data_array[i]
             self.is_used[address + i] = True
 
-    @staticmethod
-    def __convert_int_to_bytearray(data: int) -> bytearray:
+    def __convert_int_to_bytearray(self, data: int) -> bytearray:
         if data <= 0xFF:  # If the data fits in a byte, return it
             return bytearray([data])
         result = bytearray()
