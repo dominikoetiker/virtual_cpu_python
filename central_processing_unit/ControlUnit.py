@@ -71,7 +71,7 @@ class ControlUnit:
         last_operand_type_code = self.__R4.get()
 
         # For each operand except (-1) the last one (handle them as register)
-        for i in range(number_of_operands - 1):
+        for _ in range(number_of_operands - 1):
             operands.append(self.__get_register_operand())
 
         # Handle the last operand based on its type
