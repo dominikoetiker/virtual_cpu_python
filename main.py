@@ -48,7 +48,53 @@ def main():
         ]
     )
 
-    my_cpu.load_program(example_program_2)
+    example_program_3 = bytearray(
+        [
+            # check if a is > than b
+            # INP R0 (a)
+            0x16, # PC: 0x0000: INP
+            0x00, # PC: 0x0001: last_operand_type (register)
+            0x00, # PC: 0x0002: operand_1 (register 0)
+
+            # INP R1 (b)
+            0x16, # PC: 0x0003: INP
+            0x00, # PC: 0x0004: last_operand_type (register)
+            0x01, # PC: 0x0005: operand_1 (register 1)
+
+            # SUB R0, R0, R1 (R0 = R0 - R1) (a - b)
+            0x09, # PC: 0x0006: SUB
+            0x00, # PC: 0x0007: last_operand_type (register)
+            0x00, # PC: 0x0008: operand_1 (register 0)
+            0x00, # PC: 0x0009: operand_2 (register 0)
+            0x01, # PC: 0x000a: operand_3 (register 1)
+
+            # AND R0, R0, 0b1000 0000 0000 0000 (R0 = R0 & 0b1000 0000 0000 0000) (check if the most significant bit of R0 is set to 1)
+            0x0D, # PC: 0x000b: AND
+            0x01, # PC: 0x000c: last_operand_type (value)
+            0x00, # PC: 0x000d: operand_1 (register 0)
+            0x00, # PC: 0x000e: operand_2 (register 0)
+            0x00, # PC: 0x000f: second byte of value 0b1000 0000 0000 0000
+            0x80, # PC: 0x0010: first byte of value 0b1000 0000 0000 0000
+
+            # LSR R0, R0, 15 (R0 = R0 >> 15) (shift the most significant bit to the least significant bit)
+            0x12, # PC: 0x0011: LSR
+            0x01, # PC: 0x0012: last_operand_type (value)
+            0x00, # PC: 0x0013: operand_1 (register 0)
+            0x00, # PC: 0x0014: operand_2 (register 0)
+            0x0f, # PC: 0x0015: second byte of value 15
+            0x00, # PC: 0x0016: first byte of value 15
+
+            # OUT R0 (if output is 1, a < b, if output is 0, a >= b)
+            0x17, # PC: 0x0017: OUT
+            0x00, # PC: 0x0018: last_operand_type (register)
+            0x00, # PC: 0x0019: operand_1 (register 0)
+
+            # HLT
+            0x01, # PC: 0x001d: HLT
+        ]
+    )
+
+    my_cpu.load_program(example_program_3)
     my_cpu.run()
 
 
