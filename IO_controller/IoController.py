@@ -17,3 +17,7 @@ class IoController:
     def asm_OUT(self, register: Register):
         self.R2.set(register.get())
         print(f"OUT: {register.get()}")
+
+    def asm_OUT_ascii(self, register: Register):
+        self.R2.set(register.get())
+        print(f"OUT: {chr(register.get())}")

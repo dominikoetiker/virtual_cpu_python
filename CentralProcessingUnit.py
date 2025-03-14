@@ -81,6 +81,7 @@ class CentralProcessingUnit:
             # I/O operations
             0x16: ("INP", self.__io_controller.asm_INP, 1),
             0x17: ("OUT", self.__io_controller.asm_OUT, 1),
+            0x18: ("OUT_ascii", self.__io_controller.asm_OUT_ascii, 1),
         }
         # Format {code: (type, operand_size_byte)}
         self.__operand_type_set: Dict[int, Tuple[str, int]] = {

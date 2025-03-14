@@ -37,7 +37,7 @@ def main():
         ]
     )
 
-    example_program_2 = bytearray(
+    add_two_numbers = bytearray(
         [
             # Example: Adding two numbers and outputting the result
             0x02, 0x01, 0x00, 0x05, 0x00,  # MOV R0, 5 # fmt: skip
@@ -48,7 +48,7 @@ def main():
         ]
     )
 
-    example_program_3 = bytearray(
+    is_greater_than: bytearray = bytearray(
         [
             # Example: check if a is > than b
             # INP R0 (a)
@@ -94,7 +94,7 @@ def main():
         ]
     )
 
-    example_program_4 = bytearray(
+    fibonacci: bytearray = bytearray(
         [
             # Example: Output all Fibonacci numbers up to user defined limit
             # set_limit:
@@ -269,7 +269,36 @@ def main():
         ]
     )
 
-    my_cpu.load_program(example_program_4)
+    hello_world = bytearray(
+        [
+            # Hello World program
+            0x02, 0x01, 0x00, 0x48, 0x00, # MOV R0, 72 (H) # fmt: skip
+            0x18, 0x00, 0x00, # OUT_ascii R0 # fmt: skip
+            0x02, 0x01, 0x00, 0x65, 0x00, # MOV R0, 101 (e) # fmt: skip
+            0x18, 0x00, 0x00, # OUT_ascii R0 # fmt: skip
+            0x02, 0x01, 0x00, 0x6c, 0x00, # MOV R0, 108 (l) # fmt: skip
+            0x18, 0x00, 0x00, # OUT_ascii R0 # fmt: skip
+            0x02, 0x01, 0x00, 0x6c, 0x00, # MOV R0, 108 (l) # fmt: skip
+            0x18, 0x00, 0x00, # OUT_ascii R0 # fmt: skip
+            0x02, 0x01, 0x00, 0x6f, 0x00, # MOV R0, 111 (o) # fmt: skip
+            0x18, 0x00, 0x00, # OUT_ascii R0 # fmt: skip
+            0x02, 0x01, 0x00, 0x20, 0x00, # MOV R0, 32 (space) # fmt: skip
+            0x18, 0x00, 0x00, # OUT_ascii R0 # fmt: skip
+            0x02, 0x01, 0x00, 0x57, 0x00, # MOV R0, 87 (W) # fmt: skip
+            0x18, 0x00, 0x00, # OUT_ascii R0 # fmt: skip
+            0x02, 0x01, 0x00, 0x6f, 0x00, # MOV R0, 111 (o) # fmt: skip
+            0x18, 0x00, 0x00, # OUT_ascii R0 # fmt: skip
+            0x02, 0x01, 0x00, 0x72, 0x00, # MOV R0, 114 (r) # fmt: skip
+            0x18, 0x00, 0x00, # OUT_ascii R0 # fmt: skip
+            0x02, 0x01, 0x00, 0x6c, 0x00, # MOV R0, 108 (l) # fmt: skip
+            0x18, 0x00, 0x00, # OUT_ascii R0 # fmt: skip
+            0x02, 0x01, 0x00, 0x64, 0x00, # MOV R0, 100 (d) # fmt: skip
+            0x18, 0x00, 0x00, # OUT_ascii R0 # fmt: skip
+            0x01, # HLT # fmt: skip
+        ]
+    )
+
+    my_cpu.load_program(hello_world)
     my_cpu.run()
 
 
