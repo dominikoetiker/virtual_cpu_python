@@ -38,7 +38,6 @@ The virtual CPU implements a simplified architecture with the following componen
 
 - RAM with configurable size (default: 1024 bytes)
 - Support for address-based memory access
-- Memory tracking to manage used/free space (for now, it only marks memory as used and checks if it is used, but does not free it)
 
 ## Bytecode Format
 
@@ -79,6 +78,7 @@ The virtual CPU implements a simplified architecture with the following componen
 | **I/O Operations**        |
 | 0x16                      | INP      | `INP Rd`                    | Read input from user and store in Rd                     | None           |
 | 0x17                      | OUT      | `OUT Rd`                    | Output value from Rd to console                          | None           |
+| 0x18                      | OUTC     | `OUTC Rd`                   | Output character from Rd to console                      | None           |
 
 Where:
 
@@ -154,7 +154,7 @@ my_cpu.run()
 
 1. **Assembler**: Create a tool to translate assembly language into bytecode
 2. **Loader**: Implement a loader to load programs from files
-3. **Memory Management**: Improve the memory allocation and management system (e.g., free memory)
+3. **Memory Management**: Improve the memory allocation and management system (e.g., malloc, free memory)
 
 ## Contributing
 

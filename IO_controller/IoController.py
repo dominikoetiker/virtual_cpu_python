@@ -18,6 +18,6 @@ class IoController:
         self.R2.set(register.get())
         print(f"OUT: {register.get()}")
 
-    def asm_OUT_ascii(self, register: Register):
+    def asm_OUTC(self, register: Register):
         self.R2.set(register.get())
         print(f"OUT: {chr(register.get())}")
