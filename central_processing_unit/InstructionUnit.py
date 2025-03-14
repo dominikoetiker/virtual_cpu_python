@@ -16,32 +16,33 @@ class InstructionUnit:
         self.R3: Register = register_set[0x03][1]
         self.R5: Register = register_set[0x05][1]
 
+    def __jump_to_address(self, address: Union[Register, int]):
+        if isinstance(address, Register):
+            address = address.get()
+        self.R5.set(address)
+
     def asm_MOV(self, to_register: Register, value: Union[Register, int]):
         if isinstance(value, Register):
-            value: int = value.get()
+            value = value.get()
         to_register.set(value)
 
-    def asm_BEQ(self, label: str):
+    def asm_BEQ(self, address: Union[Register, int]):
         if self.Z.isFlagSet:
-            address: int = self.memory.get_with_label(label, len(self.R5.value))
-            self.R5.set(address)
+            self.__jump_to_address(address)
 
-    def asm_BNE(self, label: str):
+    def asm_BNE(self, address: Union[Register, int]):
         if not self.Z.isFlagSet:
-            address: int = self.memory.get_with_label(label, len(self.R5.value))
-            self.R5.set(address)
+            self.__jump_to_address(address)
 
-    def asm_B(self, label: str):
-        address: int = self.memory.get_with_label(label, len(self.R5.value))
-        self.R5.set(address)
+    def asm_B(self, address: Union[Register, int]):
+        self.__jump_to_address(address)
 
-    def asm_BL(self, label: str):
+    def asm_BL(self, address: Union[Register, int]):
         self.R3.set(self.R5.get())
-        address: int = self.memory.get_with_label(label, len(self.R5.value))
-        self.R5.set(address)
+        self.__jump_to_address(address)
 
     def asm_BX(self):
-        self.R5.set(self.R3.get())
+        self.__jump_to_address(self.R3)
 
     def asm_HLT(self):
         raise StopIteration("HLT instruction executed")

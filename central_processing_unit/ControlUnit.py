@@ -48,21 +48,6 @@ class ControlUnit:
             self.__increment_pc()
         return value
 
-    def __get_label_operand(self) -> str:
-        self.__increment_pc()
-        self.__load_to_mbr()
-        label: str = (
-            self.__memory.get_with_address(
-                self.__R5.get(), self.__operand_type_set[0x02][1]
-            )
-            .to_bytes(
-                self.__operand_type_set[0x02][1], byteorder="big"
-            )  # Convert to bytes using big-endian byte order
-            .decode("ascii")  # Convert to string
-        )
-        self.__increment_pc()  # Skip second byte of the operand (already read)
-        return label
-
     def __get_operands(self, number_of_operands: int) -> List[Any]:
         operands = []
         # Get the last operand type
@@ -80,10 +65,8 @@ class ControlUnit:
         if last_operand_type_code == 0x00:  # Register
             operands.append(self.__get_register_operand())
             self.__increment_pc()
-        elif last_operand_type_code == 0x01:
+        elif last_operand_type_code == 0x01:  # Value
             operands.append(self.__get_value_operand())
-        elif last_operand_type_code == 0x02:
-            operands.append(self.__get_label_operand())
         return operands
 
     # Returns a tuple with the instruction and its operands

@@ -86,7 +86,6 @@ class CentralProcessingUnit:
         self.__operand_type_set: Dict[int, Tuple[str, int]] = {
             0x00: ("register", 1),
             0x01: ("value", 2),
-            0x02: ("label", 2),
         }
 
         self.__control_unit: ControlUnit = ControlUnit(

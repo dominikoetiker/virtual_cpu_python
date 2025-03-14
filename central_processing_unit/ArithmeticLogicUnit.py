@@ -12,7 +12,7 @@ class ArithmeticLogicUnit:
         self, to_register: Register, summand1: Register, summand2: Union[Register, int]
     ):
         if isinstance(summand2, Register):
-            summand2: int = summand2.get()
+            summand2 = summand2.get()
         result: int = summand1.get() + summand2
         to_register.set(result)
         self.Z.set_is_zero(result)
@@ -21,7 +21,7 @@ class ArithmeticLogicUnit:
         self, to_register: Register, minuend: Register, subtrahend: Union[Register, int]
     ):
         if isinstance(subtrahend, Register):
-            subtrahend: int = subtrahend.get()
+            subtrahend = subtrahend.get()
         result: int = minuend.get() - subtrahend
         to_register.set(result)
         self.Z.set_is_zero(result)
@@ -30,7 +30,7 @@ class ArithmeticLogicUnit:
         self, to_register: Register, factor1: Register, factor2: Union[Register, int]
     ):
         if isinstance(factor2, Register):
-            factor2: int = factor2.get()
+            factor2 = factor2.get()
         result: int = factor1.get() * factor2
         to_register.set(result)
         self.Z.set_is_zero(result)
@@ -39,7 +39,7 @@ class ArithmeticLogicUnit:
         self, to_register: Register, dividend: Register, divisor: Union[Register, int]
     ):
         if isinstance(divisor, Register):
-            divisor: int = divisor.get()
+            divisor = divisor.get()
         result: int = dividend.get() // divisor  # Integer division
         to_register.set(result)
         self.Z.set_is_zero(result)
@@ -48,7 +48,7 @@ class ArithmeticLogicUnit:
         self, to_register: Register, dividend: Register, divisor: Union[Register, int]
     ):
         if isinstance(divisor, Register):
-            divisor: int = divisor.get()
+            divisor = divisor.get()
         result: int = dividend.get() % divisor
         to_register.set(result)
         self.Z.set_is_zero(result)
@@ -58,7 +58,7 @@ class ArithmeticLogicUnit:
         self, to_register: Register, operand1: Register, operand2: Union[Register, int]
     ):
         if isinstance(operand2, Register):
-            operand2: int = operand2.get()
+            operand2 = operand2.get()
         result: int = operand1.get() & operand2
         to_register.set(result)
         self.Z.set_is_zero(result)
@@ -67,7 +67,7 @@ class ArithmeticLogicUnit:
         self, to_register: Register, operand1: Register, operand2: Union[Register, int]
     ):
         if isinstance(operand2, Register):
-            operand2: int = operand2.get()
+            operand2 = operand2.get()
         result: int = operand1.get() | operand2
         to_register.set(result)
         self.Z.set_is_zero(result)
@@ -76,14 +76,14 @@ class ArithmeticLogicUnit:
         self, to_register: Register, operand1: Register, operand2: Union[Register, int]
     ):
         if isinstance(operand2, Register):
-            operand2: int = operand2.get()
+            operand2 = operand2.get()
         result: int = operand1.get() ^ operand2
         to_register.set(result)
         self.Z.set_is_zero(result)
 
     def asm_NOT(self, to_register: Register, operand: Union[Register, int]):
         if isinstance(operand, Register):
-            operand: int = operand.get()
+            operand = operand.get()
         result: int = ~operand
         to_register.set(result)
         self.Z.set_is_zero(result)
@@ -93,7 +93,7 @@ class ArithmeticLogicUnit:
         self, to_register: Register, operand: Register, shift: Union[Register, int]
     ):
         if isinstance(shift, Register):
-            shift: int = shift.get()
+            shift = shift.get()
         result: int = operand.get() << shift
         to_register.set(result)
         self.Z.set_is_zero(result)
@@ -102,7 +102,7 @@ class ArithmeticLogicUnit:
         self, to_register: Register, operand: Register, shift: Union[Register, int]
     ):
         if isinstance(shift, Register):
-            shift: int = shift.get()
+            shift = shift.get()
         result: int = operand.get() >> shift
         to_register.set(result)
         self.Z.set_is_zero(result)
@@ -110,6 +110,6 @@ class ArithmeticLogicUnit:
     # Compare operations
     def asm_CMP(self, operand1: Register, operand2: Union[Register, int]):
         if isinstance(operand2, Register):
-            operand2: int = operand2.get()
+            operand2 = operand2.get()
         result: int = operand1.get() - operand2
         self.Z.set_is_zero(result)
