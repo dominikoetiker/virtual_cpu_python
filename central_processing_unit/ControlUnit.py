@@ -98,6 +98,7 @@ class ControlUnit:
     def clock(self):
         # Fetch
         self.__load_to_mbr()
+        # Decode
         instruction: Tuple[Callable, List[Any]] = self.__decode_instruction()
         # Execute
         try:
