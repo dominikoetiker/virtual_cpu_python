@@ -16,8 +16,8 @@ class IoController:
 
     def asm_OUT(self, register: Register):
         self.R2.set(register.get())
-        print(f"OUT: {register.get()}")
+        print(f"{register.get()}")
 
     def asm_OUTC(self, register: Register):
         self.R2.set(register.get())
-        print(f"OUT: {chr(register.get())}")
+        print(f"{chr(register.get())}", end="")
