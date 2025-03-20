@@ -28,6 +28,7 @@ class CentralProcessingUnit:
         self.__R3: Register = Register(r3_size_byte)  # Link register
         self.__R4: Register = Register(1)  # Memory byte register only 1 byte
         self.__R5: Register = Register(r5_size_byte)  # Program counter
+        self.__R6: Register = Register(r5_size_byte)  # Current program start address
         # Format {code: (name, register)}
         self.__register_set: Dict[int, Tuple[str, Register]] = {
             0x00: ("R0", self.__R0),
@@ -36,6 +37,7 @@ class CentralProcessingUnit:
             0x03: ("R3", self.__R3),
             0x04: ("R4", self.__R4),
             0x05: ("R5", self.__R5),
+            0x06: ("R6", self.__R6),
         }
         self.__arithmetic_logic_unit: ArithmeticLogicUnit = ArithmeticLogicUnit(
             self.__Z
@@ -89,21 +91,20 @@ class CentralProcessingUnit:
             0x00: ("register", 1),
             0x01: ("value", 2),
         }
-
         self.__control_unit: ControlUnit = ControlUnit(
             self.__memory,
             self.__instruction_set,
             self.__register_set,
             self.__operand_type_set,
         )
-
         self.__interrupt_controller: InterruptController = InterruptController()
 
     def load_program(self, address: int, program: bytearray):
+        self.__R6.set(address)
         self.__memory.set_with_address(address, program)
 
-    def run(self):
-        self.__control_unit.set_program_counter(0x00)
+    def run(self, address: int):
+        self.__control_unit.set_program_counter(address)
         try:
             while True:
                 self.__control_unit.clock()
