@@ -7,6 +7,7 @@ from central_processing_unit.ControlUnit import ControlUnit
 from central_processing_unit.InstructionUnit import InstructionUnit
 from IO_controller.IoController import IoController
 from memory_controller.MemoryController import MemoryController
+from interrupt_controller.InterruptController import InterruptController
 
 
 class CentralProcessingUnit:
@@ -96,8 +97,10 @@ class CentralProcessingUnit:
             self.__operand_type_set,
         )
 
-    def load_program(self, program: bytearray):
-        self.__memory.set_with_address(0x00, program)
+        self.__interrupt_controller: InterruptController = InterruptController()
+
+    def load_program(self, address: int, program: bytearray):
+        self.__memory.set_with_address(address, program)
 
     def run(self):
         self.__control_unit.set_program_counter(0x00)
