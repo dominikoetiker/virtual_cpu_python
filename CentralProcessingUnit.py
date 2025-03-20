@@ -28,7 +28,7 @@ class CentralProcessingUnit:
         self.__R3: Register = Register(r3_size_byte)  # Link register
         self.__R4: Register = Register(1)  # Memory byte register only 1 byte
         self.__R5: Register = Register(r5_size_byte)  # Program counter
-        self.__R6: Register = Register(r5_size_byte)  # Current program start address
+        self.__R6: Register = Register(r5_size_byte)  # Current program base address
         # Format {code: (name, register)}
         self.__register_set: Dict[int, Tuple[str, Register]] = {
             0x00: ("R0", self.__R0),
