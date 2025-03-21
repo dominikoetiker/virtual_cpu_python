@@ -33,7 +33,7 @@ def main():
     #         0x17,  # PC: 0x0017: OUT
     #         0x00,  # PC: 0x0018: last_operand_type (register)
     #         0x00,  # PC: 0x0019: operand_1 (register 0)
-    #         0x01,  # PC: 0x001a: HLT
+    #         0xFF,  # PC: 0x001a: IRET
     #     ]
     # )
 
@@ -44,7 +44,7 @@ def main():
     #         0x02, 0x01, 0x01, 0x03, 0x00,  # MOV R1, 3 # fmt: skip
     #         0x08, 0x00, 0x00, 0x00, 0x01,  # ADD R0, R0, R1 # fmt: skip
     #         0x17, 0x00, 0x00,  # OUT R0 # fmt: skip
-    #         0x01,  # HLT # fmt: skip
+    #         0xFF,  # IRET # fmt: skip
     #     ]
     # )
 
@@ -89,8 +89,8 @@ def main():
     #         0x00, # PC: 0x0018: last_operand_type (register)
     #         0x00, # PC: 0x0019: operand_1 (register 0)
     #
-    #         # HLT
-    #         0x01, # PC: 0x001d: HLT
+    #         # IRET
+    #         0xFF, # PC: 0x001d: IRET
     #     ]
     # )
 
@@ -184,8 +184,8 @@ def main():
     #         0x01,  # PC: 0x0042: last_operand_type (value)
     #         0x46,  # PC: 0x0043: second byte of address (jmp_back)
     #         0x00,  # PC: 0x0044: first byte of address (jmp_back)
-    #         # HLT (if the current number is greater than the limit, halt the program)
-    #         0x01,  # PC: 0x0045: HLT
+    #         # IRET (if the current number is greater than the limit, halt the program)
+    #         0xFF,  # PC: 0x0045: IRET
     #         # jmp_back:
     #         # BX (jump back, where came from)
     #         0x07,  # PC: 0x0046: BX
@@ -270,7 +270,7 @@ def main():
     #         0x18, 0x00, 0x00, # OUTC R0 # fmt: skip
     #         0x02, 0x01, 0x00, 0x0a, 0x00, # MOV R0, 10 (LF) # fmt: skip
     #         0x18, 0x00, 0x00, # OUTC R0 # fmt: skip
-    #         0x01, # HLT # fmt: skip
+    #         0xFF, # IRET # fmt: skip
     #     ]
     # )
 
