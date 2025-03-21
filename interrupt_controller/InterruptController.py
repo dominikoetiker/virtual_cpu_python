@@ -77,21 +77,27 @@ class InterruptController:
         t.start()
 
     def __process_interrupt(self, interrupt_message: str):
-        interrupt_message_parts: List[str] = interrupt_message.split(" ")
+        interrupt_message_lines: List[str] = interrupt_message.split("\n")
+        interrupt_message_bytes: List[str] = []
+        for line in interrupt_message_lines:
+            line_parts: List[str] = line.split(" ")
+            for byte in line_parts:
+                if byte != "":
+                    interrupt_message_bytes.append(byte)
         try:
-            interrupt_command: int = int(interrupt_message_parts[0], 0)
+            interrupt_command: int = int(interrupt_message_bytes[0], 0)
         except ValueError as e:
             print(f"Error in interrupt command, try again: {e}")
             return
         try:
-            address: int = int(interrupt_message_parts[1], 0)
+            address: int = int(interrupt_message_bytes[1], 0)
         except ValueError as e:
             print(f"Error in address, try again: {e}")
             return
         if (interrupt_command == 0x00) and (address < 0x0A):
             print("Error in address, LOAD address has to by at least 0x0A")
         try:
-            arguments: List[int] = [int(x, 0) for x in interrupt_message_parts[2:]]
+            arguments: List[int] = [int(x, 0) for x in interrupt_message_bytes[2:]]
         except ValueError as e:
             print(f"Error ein program, try again: {e}")
             return
