@@ -1,4 +1,4 @@
-from typing import Dict, Tuple, Callable
+from typing import Dict, List, Tuple, Callable
 from base.Flag import Flag
 from base.Ram import Ram
 from base.Register import Register
@@ -7,6 +7,7 @@ from central_processing_unit.ControlUnit import ControlUnit
 from central_processing_unit.InstructionUnit import InstructionUnit
 from IO_controller.IoController import IoController
 from memory_controller.MemoryController import MemoryController
+from interrupt_controller.InterruptController import InterruptController
 
 
 class CentralProcessingUnit:
@@ -27,6 +28,7 @@ class CentralProcessingUnit:
         self.__R3: Register = Register(r3_size_byte)  # Link register
         self.__R4: Register = Register(1)  # Memory byte register only 1 byte
         self.__R5: Register = Register(r5_size_byte)  # Program counter
+        self.__R6: Register = Register(r5_size_byte)  # Current program base address
         # Format {code: (name, register)}
         self.__register_set: Dict[int, Tuple[str, Register]] = {
             0x00: ("R0", self.__R0),
@@ -35,6 +37,7 @@ class CentralProcessingUnit:
             0x03: ("R3", self.__R3),
             0x04: ("R4", self.__R4),
             0x05: ("R5", self.__R5),
+            0x06: ("R6", self.__R6),
         }
         self.__arithmetic_logic_unit: ArithmeticLogicUnit = ArithmeticLogicUnit(
             self.__Z
@@ -45,6 +48,9 @@ class CentralProcessingUnit:
         self.__io_controller: IoController = IoController(self.__register_set)
         self.__memory_controller: MemoryController = MemoryController(
             self.__Z, self.__memory
+        )
+        self.__interrupt_controller: InterruptController = InterruptController(
+            self.__register_set
         )
         # Format: {opcode: (mnemonic, method, number_of_operands)}
         self.__instruction_set: Dict[int, Tuple[str, Callable, int]] = {
@@ -82,13 +88,14 @@ class CentralProcessingUnit:
             0x16: ("INP", self.__io_controller.asm_INP, 1),
             0x17: ("OUT", self.__io_controller.asm_OUT, 1),
             0x18: ("OUTC", self.__io_controller.asm_OUTC, 1),
+            # Interrupt operations
+            0xFF: ("IRET", self.__interrupt_controller.asm_IRET, 0),
         }
         # Format {code: (type, operand_size_byte)}
         self.__operand_type_set: Dict[int, Tuple[str, int]] = {
             0x00: ("register", 1),
             0x01: ("value", 2),
         }
-
         self.__control_unit: ControlUnit = ControlUnit(
             self.__memory,
             self.__instruction_set,
@@ -96,14 +103,39 @@ class CentralProcessingUnit:
             self.__operand_type_set,
         )
 
-    def load_program(self, program: bytearray):
-        self.__memory.set_with_address(0x00, program)
+    def __run_interrupt_sub_routine(self, address: int):
+        self.__interrupt_controller.save_current_context()
+        self.run_CPU(address)
 
-    def run(self):
-        self.__control_unit.set_program_counter(0x00)
+    def __handle_interrupt(self):
+        interrupt: Tuple[int, int, List[int]] = (
+            self.__interrupt_controller.get_next_interrupt()
+        )
+        interrupt_command: int = interrupt[0]
+        interrupt_address: int = interrupt[1]
+        interrupt_args: List[int] = interrupt[2]
+        if interrupt_command == 0x00:
+            self.load_program(interrupt_address, bytearray(interrupt_args))
+        elif interrupt_command == 0x01:
+            self.__run_interrupt_sub_routine(interrupt_address)
+        else:
+            print(f"Unknwown command: {interrupt_command}")
+            return
+
+    def load_program(self, address: int, program: bytearray):
+        self.__memory.set_with_address(address, program)
+
+    def run_CPU(self, address: int):
+        self.__control_unit.set_program_counter(address)
+        self.__R6.set(address)
         try:
             while True:
+                if self.__interrupt_controller.has_interrupt:
+                    self.__handle_interrupt()
                 self.__control_unit.clock()
         except StopIteration as e:
-            print(e)
+            print(f"StopIteration: {e}")
+            self.run_CPU(0x00)  # jump to initial CPU loop
+        except StopAsyncIteration:
+            print("IRET")
             return
