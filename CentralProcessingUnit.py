@@ -104,6 +104,7 @@ class CentralProcessingUnit:
         )
 
     def __run_interrupt_sub_routine(self, address: int):
+        self.__interrupt_controller.save_current_context()
         self.run_CPU(address)
 
     def __handle_interrupt(self):
@@ -114,28 +115,24 @@ class CentralProcessingUnit:
         interrupt_address: int = interrupt[1]
         interrupt_args: List[int] = interrupt[2]
         if interrupt_command == 0x00:
-            self.__interrupt_controller.save_current_context()
             self.load_program(interrupt_address, bytearray(interrupt_args))
-            self.__interrupt_controller.recreate_last_context()
         elif interrupt_command == 0x01:
-            self.__interrupt_controller.save_current_context()
             self.__run_interrupt_sub_routine(interrupt_address)
         else:
             print(f"Unknwown command: {interrupt_command}")
             return
 
     def load_program(self, address: int, program: bytearray):
-        print(f"DEBUG: load_program address:{address}")
-        self.__R6.set(address)
         self.__memory.set_with_address(address, program)
 
     def run_CPU(self, address: int):
         self.__control_unit.set_program_counter(address)
+        self.__R6.set(address)
         try:
             while True:
-                self.__control_unit.clock()
                 if self.__interrupt_controller.has_interrupt:
                     self.__handle_interrupt()
+                self.__control_unit.clock()
         except StopIteration as e:
             print(f"StopIteration: {e}")
             self.run_CPU(0x00)  # jump to initial CPU loop

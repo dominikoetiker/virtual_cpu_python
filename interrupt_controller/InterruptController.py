@@ -16,11 +16,7 @@ class InterruptController:
 
     def get_next_interrupt(self) -> Tuple[int, int, List[int]]:
         interrupt: Tuple[int, int, List[int]] = self.__interrupt_vector_table.pop(0)
-        print(f"DEBUG: interrupt: {interrupt}")
         if len(self.__interrupt_vector_table) == 0:
-            print(
-                f"DEBUG: len of __interrupt_vector_table is == 0: {self.__interrupt_vector_table}"
-            )
             self.has_interrupt = False
         return interrupt
 
@@ -35,10 +31,6 @@ class InterruptController:
             self.__register_set[0x06][1].get(),
         )
         self.__interrupt_context_memory.append(context)
-        print(f"DEBUG: context stored: {context}")
-        print(
-            f"DEBUG: self.__interrupt_context_memory: {self.__interrupt_context_memory}"
-        )
 
     def asm_IRET(self):
         self.recreate_last_context()
