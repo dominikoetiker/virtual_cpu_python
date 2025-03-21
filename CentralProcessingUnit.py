@@ -1,4 +1,4 @@
-from typing import Dict, Tuple, Callable
+from typing import Dict, List, Tuple, Callable
 from base.Flag import Flag
 from base.Ram import Ram
 from base.Register import Register
@@ -50,6 +50,14 @@ class CentralProcessingUnit:
             self.__Z, self.__memory
         )
         # Format: {opcode: (mnemonic, method, number_of_operands)}
+        self.__sys_call_table: Dict[int, str] = {
+            0x00: "LOAD",
+            0x01: "RUN",
+        }
+        self.__interrupt_controller: InterruptController = InterruptController(
+            self.__register_set
+        )
+        # Format: {opcode: (mnemonic, method, number_of_operands)}
         self.__instruction_set: Dict[int, Tuple[str, Callable, int]] = {
             # Control operations
             0x00: ("NOP", self.__instruction_unit.asm_NOP, 0),
@@ -85,6 +93,8 @@ class CentralProcessingUnit:
             0x16: ("INP", self.__io_controller.asm_INP, 1),
             0x17: ("OUT", self.__io_controller.asm_OUT, 1),
             0x18: ("OUTC", self.__io_controller.asm_OUTC, 1),
+            # Interrupt operations
+            0xFF: ("IRET", self.__interrupt_controller.asm_IRET, 0),
         }
         # Format {code: (type, operand_size_byte)}
         self.__operand_type_set: Dict[int, Tuple[str, int]] = {
@@ -97,17 +107,43 @@ class CentralProcessingUnit:
             self.__register_set,
             self.__operand_type_set,
         )
-        self.__interrupt_controller: InterruptController = InterruptController()
+
+    def __run_interrupt_sub_routine(self, address: int):
+        self.run_CPU(address)
+
+    def __handle_interrupt(self):
+        interrupt: Tuple[int, int, List[int]] = (
+            self.__interrupt_controller.get_next_interrupt()
+        )
+        interrupt_command: int = interrupt[0]
+        interrupt_address: int = interrupt[1]
+        interrupt_args: List[int] = interrupt[2]
+        if interrupt_command == 0x00:
+            self.__interrupt_controller.save_current_context()
+            self.load_program(interrupt_address, bytearray(interrupt_args))
+            self.__interrupt_controller.recreate_last_context()
+        elif interrupt_command == 0x01:
+            self.__interrupt_controller.save_current_context()
+            self.__run_interrupt_sub_routine(interrupt_address)
+        else:
+            print(f"Unknwown command: {interrupt_command}")
+            return
 
     def load_program(self, address: int, program: bytearray):
+        print(f"DEBUG: load_program address:{address}")
         self.__R6.set(address)
         self.__memory.set_with_address(address, program)
 
-    def run(self, address: int):
+    def run_CPU(self, address: int):
         self.__control_unit.set_program_counter(address)
         try:
             while True:
                 self.__control_unit.clock()
+                if self.__interrupt_controller.has_interrupt:
+                    self.__handle_interrupt()
         except StopIteration as e:
-            print(e)
+            print(f"StopIteration: {e}")
+            self.run_CPU(0x00)  # jump to initial CPU loop
+        except StopAsyncIteration:
+            print("IRET")
             return
