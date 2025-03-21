@@ -49,11 +49,6 @@ class CentralProcessingUnit:
         self.__memory_controller: MemoryController = MemoryController(
             self.__Z, self.__memory
         )
-        # Format: {opcode: (mnemonic, method, number_of_operands)}
-        self.__sys_call_table: Dict[int, str] = {
-            0x00: "LOAD",
-            0x01: "RUN",
-        }
         self.__interrupt_controller: InterruptController = InterruptController(
             self.__register_set
         )

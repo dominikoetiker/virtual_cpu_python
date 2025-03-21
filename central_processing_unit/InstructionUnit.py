@@ -1,4 +1,3 @@
-from central_processing_unit.ArithmeticLogicUnit import ArithmeticLogicUnit
 from typing import Union, Dict, Tuple
 from base.Register import Register
 from base.Flag import Flag
