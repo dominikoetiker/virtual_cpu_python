@@ -56,14 +56,10 @@ class InterruptController:
             server.listen(5)
             print(
                 """
-            CPU running
-            Interrupt controller listening on port 9999
-            Waiting for instructions
-            LOAD TO_ADDRESS [bytes] = 0x00 0x... 0x... ...
-                (Address has to be at least 0x0A)
-            RUN ADDRESS = 0x01 0x..
+CPU running
+Waiting for instructions
 
-            """
+"""
             )
 
             while True:
