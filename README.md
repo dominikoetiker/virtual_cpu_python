@@ -506,6 +506,38 @@ fibonacci: bytearray = bytearray(
 ```
 
 </details>
+<details>
+<summary>Cooperative Multitasking: Two programs jumping from one to the other</summary>
+
+This program needs to load to address 0x0A
+
+```python
+print_a: bytearray = bytearray(
+  [
+    0x02, 0x01, 0x00, 0x41, 0x00,  # MOV R0, 65 (A)
+    0x18, 0x00, 0x00,              # OUTC R0
+    0x02, 0x01, 0x00, 0x0a, 0x00,  # MOV R0, 10 (LF)
+    0x18, 0x00, 0x00,              # OUTC R0
+    0x05, 0x01, 0x96, 0x00,        # B 0x96 (0xA0 minus relative address(Start address of programm a))
+  ]
+)
+```
+
+This program needs to be loaded to address 0xA0
+
+```python
+print_b: bytearray = bytearray(
+  [
+    0x02, 0x01, 0x00, 0x42, 0x00,  # MOV R0, 66 (B)
+    0x18, 0x00, 0x00,              # OUTC R0
+    0x02, 0x01, 0x00, 0x0a, 0x00,  # MOV R0, 10 (LF)
+    0x18, 0x00, 0x00,              # OUTC R0
+    0x05, 0x01, 0x0a, 0x00,        # B 0x00 (0x0A minus relative address (Start address of program a))
+  ]
+)
+```
+
+</details>
 
 ## Future Development
 
