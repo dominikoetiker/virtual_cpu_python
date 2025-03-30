@@ -13,7 +13,7 @@ def main():
         ]
     )
     my_cpu.load_program(0x00, system_loop)
-    my_cpu.run_CPU(0x00)
+    my_cpu.start()
 
 
 if __name__ == "__main__":

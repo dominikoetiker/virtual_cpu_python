@@ -105,7 +105,7 @@ class CentralProcessingUnit:
 
     def __run_interrupt_sub_routine(self, address: int):
         self.__interrupt_controller.save_current_context()
-        self.run_CPU(address)
+        self.__run_CPU(address)
 
     def __handle_interrupt(self):
         interrupt: Tuple[int, int, List[int]] = (
@@ -122,10 +122,7 @@ class CentralProcessingUnit:
             print(f"Unknwown command: {interrupt_command}")
             return
 
-    def load_program(self, address: int, program: bytearray):
-        self.__memory.set_with_address(address, program)
-
-    def run_CPU(self, address: int):
+    def __run_CPU(self, address: int):
         self.__control_unit.set_program_counter(address)
         self.__R6.set(address)
         try:
@@ -135,7 +132,14 @@ class CentralProcessingUnit:
                 self.__control_unit.clock()
         except StopIteration as e:
             print(f"StopIteration: {e}")
-            self.run_CPU(0x00)  # jump to initial CPU loop
+            self.__run_CPU(0x00)  # jump to initial CPU loop
         except StopAsyncIteration:
             print("IRET")
             return
+
+    def start(self, address: int = 0x00):
+        self.__interrupt_controller.start_interrupt_listener()
+        self.__run_CPU(address)
+
+    def load_program(self, address: int, program: bytearray):
+        self.__memory.set_with_address(address, program)

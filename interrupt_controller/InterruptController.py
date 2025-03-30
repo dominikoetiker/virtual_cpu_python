@@ -12,31 +12,8 @@ class InterruptController:
         self.__interrupt_context_memory: List[
             Tuple[int, int, int, int, int, int, int]
         ] = []
-        self.__start_interrupt_listener()
 
-    def get_next_interrupt(self) -> Tuple[int, int, List[int]]:
-        interrupt: Tuple[int, int, List[int]] = self.__interrupt_vector_table.pop(0)
-        if len(self.__interrupt_vector_table) == 0:
-            self.has_interrupt = False
-        return interrupt
-
-    def save_current_context(self):
-        context: Tuple[int, int, int, int, int, int, int] = (
-            self.__register_set[0x00][1].get(),
-            self.__register_set[0x01][1].get(),
-            self.__register_set[0x02][1].get(),
-            self.__register_set[0x03][1].get(),
-            self.__register_set[0x04][1].get(),
-            self.__register_set[0x05][1].get(),
-            self.__register_set[0x06][1].get(),
-        )
-        self.__interrupt_context_memory.append(context)
-
-    def asm_IRET(self):
-        self.recreate_last_context()
-        raise StopAsyncIteration("IRET called")
-
-    def recreate_last_context(self):
+    def __recreate_last_context(self):
         last_context: Tuple[int, int, int, int, int, int, int] = (
             self.__interrupt_context_memory.pop()
         )
@@ -48,29 +25,24 @@ class InterruptController:
         self.__register_set[0x05][1].set(last_context[5])
         self.__register_set[0x06][1].set(last_context[6])
 
-    def __start_interrupt_listener(self):
-        def interrupt_listener_thread():
-            server: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            server.bind(("localhost", 9999))
-            server.listen(5)
-            print(
-                """
+    def __interrupt_listener_thread(self):
+        server: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        server.bind(("localhost", 9999))
+        server.listen(5)
+        print(
+            """
 CPU running
 Waiting for instructions
 
 """
-            )
+        )
 
-            while True:
-                client_socket: socket.socket = server.accept()[0]
-                data: str = client_socket.recv(1024).decode("utf-8")
-                self.__process_interrupt(data)
-                client_socket.close()
-
-        t: threading.Thread = threading.Thread(target=interrupt_listener_thread)
-        t.daemon = True
-        t.start()
+        while True:
+            client_socket: socket.socket = server.accept()[0]
+            data: str = client_socket.recv(1024).decode("utf-8")
+            self.__process_interrupt(data)
+            client_socket.close()
 
     def __process_interrupt(self, interrupt_message: str):
         interrupt_message_lines: List[str] = interrupt_message.split("\n")
@@ -104,3 +76,30 @@ Waiting for instructions
         )
         self.__interrupt_vector_table.append(pending_interrupt)
         self.has_interrupt = True
+
+    def start_interrupt_listener(self):
+        t: threading.Thread = threading.Thread(target=self.__interrupt_listener_thread)
+        t.daemon = True
+        t.start()
+
+    def get_next_interrupt(self) -> Tuple[int, int, List[int]]:
+        interrupt: Tuple[int, int, List[int]] = self.__interrupt_vector_table.pop(0)
+        if len(self.__interrupt_vector_table) == 0:
+            self.has_interrupt = False
+        return interrupt
+
+    def save_current_context(self):
+        context: Tuple[int, int, int, int, int, int, int] = (
+            self.__register_set[0x00][1].get(),
+            self.__register_set[0x01][1].get(),
+            self.__register_set[0x02][1].get(),
+            self.__register_set[0x03][1].get(),
+            self.__register_set[0x04][1].get(),
+            self.__register_set[0x05][1].get(),
+            self.__register_set[0x06][1].get(),
+        )
+        self.__interrupt_context_memory.append(context)
+
+    def asm_IRET(self):
+        self.__recreate_last_context()
+        raise StopAsyncIteration("IRET called")
