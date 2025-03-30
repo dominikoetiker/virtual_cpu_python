@@ -2,7 +2,7 @@ from CentralProcessingUnit import CentralProcessingUnit
 
 
 def main():
-    my_cpu: CentralProcessingUnit = CentralProcessingUnit()
+    cpu: CentralProcessingUnit = CentralProcessingUnit()
     system_loop = bytearray(
         [
             # System loop
@@ -12,8 +12,8 @@ def main():
             0x00,  # PC: 0x0003: first byte of address (system_loop)
         ]
     )
-    my_cpu.load_program(0x00, system_loop)
-    my_cpu.start()
+    cpu.load_program(0x00, system_loop)
+    cpu.start()
 
 
 if __name__ == "__main__":
