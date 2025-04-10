@@ -1,6 +1,7 @@
 class Register:
-    def __init__(self, register_size_byte: int):
-        self.value: bytearray = bytearray(register_size_byte)
+    def __init__(self, size_byte: int, name: str):
+        self.value: bytearray = bytearray(size_byte)
+        self.name: str = name
 
     def __set_byte_at_register_address(self, address: int, data: int):
         if address < 0 or address >= len(self.value):

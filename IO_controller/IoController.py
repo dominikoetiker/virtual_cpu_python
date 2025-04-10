@@ -1,10 +1,10 @@
-from typing import Dict, Tuple
 from base.Register import Register
+from data_types import RegisterSet
 
 
 class IoController:
-    def __init__(self, register_set: Dict[int, Tuple[str, Register]]):
-        self.R2 = register_set[0x02][1]
+    def __init__(self, register_set: RegisterSet):
+        self.R2 = register_set[0x02]
 
     def asm_INP(self, register: Register):
         text: str = input("INP: ")

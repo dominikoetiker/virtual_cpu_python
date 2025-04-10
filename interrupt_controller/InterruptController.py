@@ -1,14 +1,15 @@
-from base.Register import Register
 import socket
 import threading
-from typing import Dict, List, Tuple
+from typing import List, Tuple
+
+from data_types import Byte, Interrupt, RegisterSet
 
 
 class InterruptController:
-    def __init__(self, register_set: Dict[int, Tuple[str, Register]]):
+    def __init__(self, register_set: RegisterSet):
         self.has_interrupt: bool = False
-        self.__interrupt_vector_table: List[Tuple[int, int, List[int]]] = []
-        self.__register_set: Dict[int, Tuple[str, Register]] = register_set
+        self.__interrupt_vector_table: List[Interrupt] = []
+        self.__register_set: RegisterSet = register_set
         self.__interrupt_context_memory: List[
             Tuple[int, int, int, int, int, int, int]
         ] = []
@@ -17,13 +18,13 @@ class InterruptController:
         last_context: Tuple[int, int, int, int, int, int, int] = (
             self.__interrupt_context_memory.pop()
         )
-        self.__register_set[0x00][1].set(last_context[0])
-        self.__register_set[0x01][1].set(last_context[1])
-        self.__register_set[0x02][1].set(last_context[2])
-        self.__register_set[0x03][1].set(last_context[3])
-        self.__register_set[0x04][1].set(last_context[4])
-        self.__register_set[0x05][1].set(last_context[5])
-        self.__register_set[0x06][1].set(last_context[6])
+        self.__register_set[0x00].set(last_context[0])
+        self.__register_set[0x01].set(last_context[1])
+        self.__register_set[0x02].set(last_context[2])
+        self.__register_set[0x03].set(last_context[3])
+        self.__register_set[0x04].set(last_context[4])
+        self.__register_set[0x05].set(last_context[5])
+        self.__register_set[0x06].set(last_context[6])
 
     def __interrupt_listener_thread(self):
         server: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -53,26 +54,28 @@ Waiting for instructions
                 if byte != "":
                     interrupt_message_bytes.append(byte)
         try:
-            interrupt_command: int = int(interrupt_message_bytes[0], 0)
+            interrupt_command: Byte = int(interrupt_message_bytes[0], 0)
         except ValueError as e:
             print(f"Error in interrupt command, try again: {e}")
             return
         try:
-            address: int = int(interrupt_message_bytes[1], 0)
+            address: Byte = int(interrupt_message_bytes[1], 0)
         except ValueError as e:
             print(f"Error in address, try again: {e}")
             return
         if (interrupt_command == 0x00) and (address < 0x0A):
             print("Error in address, LOAD address has to by at least 0x0A")
         try:
-            arguments: List[int] = [int(x, 0) for x in interrupt_message_bytes[2:]]
+            arguments: bytearray = bytearray(
+                [int(x, 0) for x in interrupt_message_bytes[2:]]
+            )
         except ValueError as e:
             print(f"Error ein program, try again: {e}")
             return
-        pending_interrupt: Tuple[int, int, List[int]] = (
-            interrupt_command,
-            address,
-            arguments,
+        pending_interrupt: Interrupt = Interrupt(
+            interrupt_command=interrupt_command,
+            memory_address=address,
+            arguments=arguments,
         )
         self.__interrupt_vector_table.append(pending_interrupt)
         self.has_interrupt = True
@@ -82,21 +85,21 @@ Waiting for instructions
         t.daemon = True
         t.start()
 
-    def get_next_interrupt(self) -> Tuple[int, int, List[int]]:
-        interrupt: Tuple[int, int, List[int]] = self.__interrupt_vector_table.pop(0)
+    def get_next_interrupt(self) -> Interrupt:
+        interrupt: Interrupt = self.__interrupt_vector_table.pop(0)
         if len(self.__interrupt_vector_table) == 0:
             self.has_interrupt = False
         return interrupt
 
     def save_current_context(self):
         context: Tuple[int, int, int, int, int, int, int] = (
-            self.__register_set[0x00][1].get(),
-            self.__register_set[0x01][1].get(),
-            self.__register_set[0x02][1].get(),
-            self.__register_set[0x03][1].get(),
-            self.__register_set[0x04][1].get(),
-            self.__register_set[0x05][1].get(),
-            self.__register_set[0x06][1].get(),
+            self.__register_set[0x00].get(),
+            self.__register_set[0x01].get(),
+            self.__register_set[0x02].get(),
+            self.__register_set[0x03].get(),
+            self.__register_set[0x04].get(),
+            self.__register_set[0x05].get(),
+            self.__register_set[0x06].get(),
         )
         self.__interrupt_context_memory.append(context)
 

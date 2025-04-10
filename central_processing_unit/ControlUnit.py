@@ -1,25 +1,23 @@
-from typing import Dict, Tuple, Callable, List, Any
+from typing import Tuple, Callable, List, Any
 from base.Register import Register
 from base.Ram import Ram
+from data_types import InstructionSet, OperandTypeSet, RegisterSet
 
 
 class ControlUnit:
     def __init__(
         self,
         memory: Ram,
-        # Format: {opcode: (mnemonic, method, number_of_operands)}
-        instruction_set: Dict[int, Tuple[str, Callable, int]],
-        # Format {code: register}
-        register_set: Dict[int, Tuple[str, Register]],
-        # Format {code: (type, operand_size_byte)}
-        operand_type_set: Dict[int, Tuple[str, int]],
+        instruction_set: InstructionSet,
+        register_set: RegisterSet,
+        operand_type_set: OperandTypeSet,
     ):
         self.__memory: Ram = memory
-        self.__register_set: Dict[int, Tuple[str, Register]] = register_set
-        self.__R4: Register = self.__register_set[0x04][1]
-        self.__R5: Register = self.__register_set[0x05][1]
-        self.__instruction_set: Dict[int, Tuple[str, Callable, int]] = instruction_set
-        self.__operand_type_set: Dict[int, Tuple[str, int]] = operand_type_set
+        self.__register_set: RegisterSet = register_set
+        self.__R4: Register = self.__register_set[0x04]
+        self.__R5: Register = self.__register_set[0x05]
+        self.__instruction_set: InstructionSet = instruction_set
+        self.__operand_type_set: OperandTypeSet = operand_type_set
 
     def __load_to_mbr(self):
         data: int = self.__memory.get_with_address(
@@ -36,15 +34,15 @@ class ControlUnit:
         register_code = self.__R4.get()
         if register_code not in self.__register_set:
             raise ValueError(f"Unknown register code: {register_code}")
-        return self.__register_set[register_code][1]
+        return self.__register_set[register_code]
 
     def __get_value_operand(self) -> int:
         self.__increment_pc()
         self.__load_to_mbr()
         value = self.__memory.get_with_address(
-            self.__R5.get(), self.__operand_type_set[0x01][1]
+            self.__R5.get(), self.__operand_type_set[0x01].operand_size_byte
         )
-        for _ in range(self.__operand_type_set[0x01][1]):
+        for _ in range(self.__operand_type_set[0x01].operand_size_byte):
             self.__increment_pc()
         return value
 
@@ -78,11 +76,11 @@ class ControlUnit:
         if opcode not in self.__instruction_set:
             raise ValueError(f"Unknown opcode: {opcode}")
 
-        number_of_operands = self.__instruction_set[opcode][2]
+        number_of_operands = self.__instruction_set[opcode].number_of_operands
         operands = []
         if number_of_operands > 0:
             operands = self.__get_operands(number_of_operands)
-        return self.__instruction_set[opcode][1], operands
+        return self.__instruction_set[opcode].method, operands
 
     def __execute_instruction(self, instruction: Tuple[Callable, List[Any]]):
         method: Callable = instruction[0]
