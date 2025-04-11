@@ -1,7 +1,7 @@
 from CentralProcessingUnit import CentralProcessingUnit
 
 
-def main():
+def main() -> None:
     cpu: CentralProcessingUnit = CentralProcessingUnit()
     system_loop = bytearray(
         [

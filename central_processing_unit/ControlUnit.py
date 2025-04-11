@@ -1,7 +1,14 @@
-from typing import Tuple, Callable, List, Any
 from base.Register import Register
 from base.Ram import Ram
-from data_types import InstructionSet, OperandTypeSet, RegisterSet
+from data_types import (
+    Byte,
+    Instruction,
+    InstructionSet,
+    OperandTypeSet,
+    Operands,
+    RegisterSet,
+    InstructionMethod,
+)
 
 
 class ControlUnit:
@@ -19,13 +26,13 @@ class ControlUnit:
         self.__instruction_set: InstructionSet = instruction_set
         self.__operand_type_set: OperandTypeSet = operand_type_set
 
-    def __load_to_mbr(self):
+    def __load_to_mbr(self) -> None:
         data: int = self.__memory.get_with_address(
             self.__R5.get(), len(self.__R4.value)
         )
         self.__R4.set(data)
 
-    def __increment_pc(self):
+    def __increment_pc(self) -> None:
         self.__R5.set(self.__R5.get() + 1)
 
     def __get_register_operand(self) -> Register:
@@ -46,12 +53,12 @@ class ControlUnit:
             self.__increment_pc()
         return value
 
-    def __get_operands(self, number_of_operands: int) -> List[Any]:
-        operands = []
+    def __get_operands(self, number_of_operands: int) -> Operands:
+        operands: Operands = []
         # Get the last operand type
         self.__increment_pc()
         self.__load_to_mbr()
-        last_operand_type_code = self.__R4.get()
+        last_operand_type_code: Byte = self.__R4.get()
 
         # For each operand except (-1) the last one (handle them as register)
         for _ in range(number_of_operands - 1):
@@ -67,37 +74,37 @@ class ControlUnit:
             operands.append(self.__get_value_operand())
         return operands
 
-    # Returns a tuple with the instruction and its operands
-    def __decode_instruction(self) -> Tuple[Callable, List[Any]]:
-        # Instruction format: [opcode (1 byte), [last_operand_type (1 byte), operand_1 ... operand_n (operand_type_set[last_operand_type][1] bytes)]]
+    def __decode_instruction(self) -> Instruction:
         # Operands that are not the last one are always registers
-        opcode = self.__R4.get()
+        opcode: Byte = self.__R4.get()
 
         if opcode not in self.__instruction_set:
             raise ValueError(f"Unknown opcode: {opcode}")
 
-        number_of_operands = self.__instruction_set[opcode].number_of_operands
-        operands = []
+        number_of_operands: int = self.__instruction_set[opcode].number_of_operands
+        operands: Operands = []
         if number_of_operands > 0:
             operands = self.__get_operands(number_of_operands)
-        return self.__instruction_set[opcode].method, operands
+        method: InstructionMethod = self.__instruction_set[opcode].method
+        return Instruction(method, operands)
 
-    def __execute_instruction(self, instruction: Tuple[Callable, List[Any]]):
-        method: Callable = instruction[0]
-        operands: List[Any] = instruction[1]
+    def __execute_instruction(self, instruction: Instruction) -> None:
+        method: InstructionMethod = instruction.mthod
+        operands: Operands = instruction.operands
         try:
             method(*operands)
+            return
         except StopIteration as e:
             raise e
 
-    def set_program_counter(self, address: int):
+    def set_program_counter(self, address: int) -> None:
         self.__R5.set(address)
 
-    def clock(self):
+    def clock(self) -> None:
         # Fetch
         self.__load_to_mbr()
         # Decode
-        instruction: Tuple[Callable, List[Any]] = self.__decode_instruction()
+        instruction: Instruction = self.__decode_instruction()
         # Execute
         try:
             self.__execute_instruction(instruction)

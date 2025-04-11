@@ -10,7 +10,7 @@ class ArithmeticLogicUnit:
     # Arithmetic operations
     def asm_ADD(
         self, to_register: Register, summand1: Register, summand2: Union[Register, int]
-    ):
+    ) -> None:
         if isinstance(summand2, Register):
             summand2 = summand2.get()
         result: int = summand1.get() + summand2
@@ -19,7 +19,7 @@ class ArithmeticLogicUnit:
 
     def asm_SUB(
         self, to_register: Register, minuend: Register, subtrahend: Union[Register, int]
-    ):
+    ) -> None:
         if isinstance(subtrahend, Register):
             subtrahend = subtrahend.get()
         result: int = minuend.get() - subtrahend
@@ -28,7 +28,7 @@ class ArithmeticLogicUnit:
 
     def asm_MUL(
         self, to_register: Register, factor1: Register, factor2: Union[Register, int]
-    ):
+    ) -> None:
         if isinstance(factor2, Register):
             factor2 = factor2.get()
         result: int = factor1.get() * factor2
@@ -37,7 +37,7 @@ class ArithmeticLogicUnit:
 
     def asm_DIV(
         self, to_register: Register, dividend: Register, divisor: Union[Register, int]
-    ):
+    ) -> None:
         if isinstance(divisor, Register):
             divisor = divisor.get()
         result: int = dividend.get() // divisor  # Integer division
@@ -46,7 +46,7 @@ class ArithmeticLogicUnit:
 
     def asm_MOD(
         self, to_register: Register, dividend: Register, divisor: Union[Register, int]
-    ):
+    ) -> None:
         if isinstance(divisor, Register):
             divisor = divisor.get()
         result: int = dividend.get() % divisor
@@ -56,7 +56,7 @@ class ArithmeticLogicUnit:
     # Logical operations
     def asm_AND(
         self, to_register: Register, operand1: Register, operand2: Union[Register, int]
-    ):
+    ) -> None:
         if isinstance(operand2, Register):
             operand2 = operand2.get()
         result: int = operand1.get() & operand2
@@ -65,7 +65,7 @@ class ArithmeticLogicUnit:
 
     def asm_ORR(
         self, to_register: Register, operand1: Register, operand2: Union[Register, int]
-    ):
+    ) -> None:
         if isinstance(operand2, Register):
             operand2 = operand2.get()
         result: int = operand1.get() | operand2
@@ -74,14 +74,14 @@ class ArithmeticLogicUnit:
 
     def asm_XOR(
         self, to_register: Register, operand1: Register, operand2: Union[Register, int]
-    ):
+    ) -> None:
         if isinstance(operand2, Register):
             operand2 = operand2.get()
         result: int = operand1.get() ^ operand2
         to_register.set(result)
         self.Z.set_is_zero(result)
 
-    def asm_NOT(self, to_register: Register, operand: Union[Register, int]):
+    def asm_NOT(self, to_register: Register, operand: Union[Register, int]) -> None:
         if isinstance(operand, Register):
             operand = operand.get()
         result: int = ~operand
@@ -91,7 +91,7 @@ class ArithmeticLogicUnit:
     # Shift operations
     def asm_LSL(
         self, to_register: Register, operand: Register, shift: Union[Register, int]
-    ):
+    ) -> None:
         if isinstance(shift, Register):
             shift = shift.get()
         result: int = operand.get() << shift
@@ -100,7 +100,7 @@ class ArithmeticLogicUnit:
 
     def asm_LSR(
         self, to_register: Register, operand: Register, shift: Union[Register, int]
-    ):
+    ) -> None:
         if isinstance(shift, Register):
             shift = shift.get()
         result: int = operand.get() >> shift
@@ -108,7 +108,7 @@ class ArithmeticLogicUnit:
         self.Z.set_is_zero(result)
 
     # Compare operations
-    def asm_CMP(self, operand1: Register, operand2: Union[Register, int]):
+    def asm_CMP(self, operand1: Register, operand2: Union[Register, int]) -> None:
         if isinstance(operand2, Register):
             operand2 = operand2.get()
         result: int = operand1.get() - operand2
