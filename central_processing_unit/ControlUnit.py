@@ -89,7 +89,7 @@ class ControlUnit:
         return Instruction(method, operands)
 
     def __execute_instruction(self, instruction: Instruction) -> None:
-        method: InstructionMethod = instruction.mthod
+        method: InstructionMethod = instruction.method
         operands: Operands = instruction.operands
         try:
             method(*operands)

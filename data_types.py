@@ -53,7 +53,7 @@ class MetaInstruction:
 
 @dataclass
 class Instruction:
-    mthod: InstructionMethod
+    method: InstructionMethod
     operands: Operands
 
 
